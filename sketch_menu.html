@@ -32,10 +32,15 @@ var terra = {
 	height:100
 }
 var fase = 1 //define a tela do jogo
-var i = 0; //indice do vetor texto
+var i1 = 0; var i2 = 0; var i3 = 0; //indice do vetor texto
 var texto1 = ['Preparado para uma'+'\n'+'aventura sem igual no'+'\n'+'nosso sistema solar?', 
 							'Mas antes, vamos'+'\n'+'conhecer a sua nave'];
-//var astro_0; var astro_1; var astro_2; var astro_3; var astro_4; var astro_5; var astro_6; 
+var texto2 = ['Gostou de sua nave?!', 'Vamos prosseguir!', 
+							'Irei te apresentar ao'+'\n'+'  sistema solar!'];
+var texto3 = ['O nosso sistema solar é composto por 8 planetas'+'\n'+'que giram (movimento de translação) em torno do'+'\n'+'Sol, uma gigante estrela.Esses planetas são:'+'\n'+'  Mercúrio, Vênus, Terra, Marte,  Júpiter, Saturno,'+'\n'+'  Urano e Netuno.', 
+						 'Dentre esses 8 planetas, os 4 mais próximos do'+'\n'+'Sol são compostos por rochas e, por isso, recebem'+'\n'+'o nome de rochosos ou telúricos.', 'Já os outros planetas são compostos de gases e'+'\n'+'por isso recebem o nome de gasosos.', 'Os planetas também giram em torno de si mesmos'+'\n'+'e, a esse movimento damos o nome de rotação.', 
+						 'Considerando que não se pode desembarcar e'+'\n'+'andar sobre um planeta gasoso, você realizará'+'\n'+'missões apenas nos países rochosos.', 
+						 ' Boa sorte piloto! Vamos lá!'] 
 var player = []; var player_flip = []; var astro; var cont1 = 0; var cont2 = 0; var w =0;
 
 
@@ -66,6 +71,7 @@ function preload() {
 	for(z=0; z<6; z++) { //parametro para inversao
 		astro[z] = player[z];
 	}
+	solar_system = loadImage('solar_system.jpg');
 }
 
 function show() { //funcao para carregar as imagens
@@ -85,6 +91,24 @@ function show() { //funcao para carregar as imagens
 		image(cloud_4, 350, 50, 150, 60);
 		image(capitao, 450, 205, 78, 134);
 		image(astro[w], astro.x, 240, 104, 104);
+	}
+	if(fase === 3 ) {
+		
+		if(i3 === 1) {
+			image(solar_system, 1, -300, 1200, 800);
+		}
+		else if(i3 === 2) {
+			image(solar_system, -564, -260, 1200, 800);
+		}else{
+			image(solar_system, 1, 0, 600, 400);
+		}
+		image(capitao, 450, 230, 192, 256);
+		image(dialogo, 20, 260, 430, 140);
+		image(spacebar, 420, 372, 50, 23);
+		fill('white');
+		textSize(18);
+		text(texto3[i3], 35, 295);
+		
 	}
 }
 
@@ -124,11 +148,12 @@ function jogar() { //codigo do jogo
 		
 		if(astro.x >= 470) { //esbarra com o capitao
 			astro.x = 470;
-			if(i < texto1.length){
+			if(i1 < texto1.length){
 				image(dialogo, 400, 190, 200, 90);
 				image(spacebar, 560, 280, 35, 15);
+				fill('white');
 				textSize(18);
-				text(texto1[i], 415, 215); //texto do capitao
+				text(texto1[i1], 415, 215); //texto do capitao
 			}
 		}
 		
@@ -136,7 +161,7 @@ function jogar() { //codigo do jogo
 			astro.x = 0;
 		}
 	
-		if(i === (texto1.length)) { //acaba as falas
+		if(i1 === (texto1.length)) { //acaba as falas
 			
 			if(nave.y<100) { //nave descendo
 				image(nave_1, nave.x, nave.y, nave.width, nave.height);
@@ -165,6 +190,24 @@ function jogar() { //codigo do jogo
 	
 	if(fase === 2) { //tela dentro da nave
 		
+		if(astro.x >= 390) { //esbarra com o capitao
+			astro.x = 390;
+			image(dialogo, 350, 170, 200, 60);
+			image(spacebar, 520, 231, 35, 15);
+			fill('white');
+			textSize(18);
+			text(texto2[i2], 357, 195); //texto do capitao
+			console.log('mousex '+mouseX);
+			console.log('mousey '+mouseY);
+		}
+		
+		if(astro.x < 0) { //esbarra na parede
+			astro.x = 0;
+		}
+		
+		if(i2 === texto2.length) {
+			fase = 3;
+		}
 		
 		
 		
@@ -175,6 +218,12 @@ function jogar() { //codigo do jogo
 	}
 	
 	if(fase === 3) {
+		if(i3 === texto3.length) {
+			fase = 4;
+		}
+	}
+	
+	if(fase === 4) {
 		push();
 		translate(300, 200);
 		rotate(millis() / 10000);
@@ -183,13 +232,11 @@ function jogar() { //codigo do jogo
 		pop();
 	}
 	
-
-		
 }
 
 function sair() {
    
-  background('#7FDBFF');
+  background('white');
    
   fill('white');
   stroke('black');
@@ -282,7 +329,7 @@ function menu() { //funcao menu
 function walk() { //funcao andar
 	
 	if(keyIsDown(RIGHT_ARROW)) { //anda para direita
-			astro.x = astro.x + 5;
+			astro.x = astro.x + 7;
 			for(z=0; z<6; z++){
 				astro[z] = player[z];
 			}
@@ -297,7 +344,7 @@ function walk() { //funcao andar
 			for(z=0; z<6; z++){
 				astro[z] = player_flip[z];
 			}
-			astro.x = astro.x - 5;
+			astro.x = astro.x - 7;
 			//flip_img = astro_invertido;
 			 w++;
 			if(w>=6) {
@@ -315,12 +362,26 @@ function keyRealeased() { //astro parado
 function keyPressed() { //selecao pelas teclas
   console.log(keyCode);
   
-  if(keyCode === BACKSPACE) { //para voltar a tela inicial
+  if(keyCode === 27) { //para voltar a tela inicial
       telaAtiva=1;
 	}
 	
-	if(keyCode === 32 && i<(texto1.length)) { //passa as frases do vetor texto
-		i++;
+	if(fase === 1) {
+		if(keyCode === 32 && i1<(texto1.length)) { //passa as frases do vetor texto
+			i1++;
+		}
+	}
+	
+	if(fase === 2) {
+		if(keyCode === 32 && i2<(texto2.length)) { //passa as frases do vetor texto
+			i2++;
+		}
+	}
+	
+	if(fase === 3) {
+		if(keyCode === 32 && i3<(texto3.length)) { //passa as frases do vetor texto
+			i3++;
+		}
 	}
 	
   if(telaAtiva===1) {
