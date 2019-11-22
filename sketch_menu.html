@@ -3,38 +3,46 @@
   <meta charset="UTF-8">
   <script src="https://github.com/processing/p5.js/releases/download/0.5.16/p5.js"></script> 
   <script>
-var opcao = 1 
+var opcao = 1 ;
 var telaAtiva = 1;
 var flip_img;
-var r_1 = '#14283b'; var r_2 = '#14283b'; var r_3 = '#14283b'; var r_4 = '#14283b';
+var r_1 = '#14283b'; var r_2 = '#14283b'; var r_3 = '#14283b';
 var astro = {
 	x:50,
-	y:300,
-	width:33,
-	height:50
+	y:295,
+	width:52,
+	height:52
 };
 var astro_invertido = {
 	x:50,
 	y:300,
-	width:33,
-	height:50
+	width:52,
+	height:52
 };
 var nave = {
 	x:30,
 	y:-300,
 	width:290,
 	height:280
+};
+var terra = {
+	x:0,
+	y:0,
+	width:120,
+	height:100
 }
-
-var fase = 1; //define a tela do jogo
+var fase = 1 //define a tela do jogo
 var i = 0; //indice do vetor texto
 var texto1 = ['Preparado para uma'+'\n'+'aventura sem igual no'+'\n'+'nosso sistema solar?', 
 							'Mas antes, vamos'+'\n'+'conhecer a sua nave'];
+//var astro_0; var astro_1; var astro_2; var astro_3; var astro_4; var astro_5; var astro_6; 
+var player = []; var player_flip = []; var astro; var cont1 = 0; var cont2 = 0; var w =0;
+
 
 
 function preload() { 
+	
 	space_dn = loadImage('space_dn.png'); //space background
-	astro_0 = loadImage('astro_0.png'); //astro
 	ceu = loadImage('country-platform-back.png'); //plano de fundo da tela de jogo
 	piso = loadImage('country-platform-tiles-example.png'); //chao da tela de jogo
 	capitao = loadImage('mestre.png'); //o capitao
@@ -42,25 +50,51 @@ function preload() {
 	nave_0 = loadImage('ship_2_edit.png'); //nave pousada
 	nave_1 = loadImage('ship_2_fire.png'); //nave com fogo
 	spacebar = loadImage('spacebar.png'); //imagem barra de espaço
-	console1 = loadImage('console_w.png');
-	console2 = loadImage('console_s.png');
 	astro_invertido = loadImage('fliped.png');//astro invertido horizontalmente
-	flip_img = astro_0;
+	terra_0 = loadImage('earth.png'); //imagem da terra
+	nave_interna_day = loadImage('nave_interna_day.jpg'); //nave interna
+	cloud_1 = loadImage('cloud1.png'); //nuvens
+	cloud_2 = loadImage('cloud2.png');
+	cloud_3 = loadImage('cloud3.png');
+	cloud_4 = loadImage('cloud4.png');
+	for(var z=0; z<6; z++)	{ //animacao
+		player[z] = loadImage('astro_'+z+'.png')
+	}
+	for(z=0; z<6; z++)	{ //animacao inversa
+		player_flip[z] = loadImage('astro_'+z+'_flip.png')
+	}
+	for(z=0; z<6; z++) { //parametro para inversao
+		astro[z] = player[z];
+	}
 }
 
-	function show() { //funcao para carregar as imagens
+function show() { //funcao para carregar as imagens
+	
+	if(fase === 1) { //imagens da primeira fase
 		image(ceu, 0, 0, width, height);
 		image(piso, 0, 0, width, height);
-		image(flip_img, astro.x, astro.y, 33, 50);
+		image(astro[w], astro.x, 295, 52, 52);
 		image(capitao, 500, 280);
 	}
+	
+	if(fase === 2) { //imagens da segunda fase
+		image(nave_interna_day, 0, 0);
+		image(cloud_1, 60, 100, 120, 60);
+		image(cloud_2, 230, 160, 120, 80);
+		image(cloud_3, 230, 60, 80, 45);
+		image(cloud_4, 350, 50, 150, 60);
+		image(capitao, 450, 205, 78, 134);
+		image(astro[w], astro.x, 240, 104, 104);
+	}
+}
 
 function setup() {
+	frameRate(30);
   createCanvas(600, 400);
 }
 
 function draw() {
-  //imageMode(CENTER); (usar para centralizar a imagem)
+  
 		switch(telaAtiva) { //menu
     case 1:
       menu();
@@ -72,69 +106,80 @@ function draw() {
       regras();
       break;   
     case 4:
-      recordes();
-      break; 
-    case 5:
       sair();  
   }
 }
 
-function jogar(){ //codigo do jogo
+function jogar() { //codigo do jogo
 	background(0);
-	if(fase === 1){ //tela de inicio
-		show(); //carregar as imagens
-		if(keyIsDown(RIGHT_ARROW)) { //anda para direita
-			astro.x = astro.x + 5;
-			flip_img = astro_0;
+	show(); //carregar as imagens
+	walk(); //funcao andar
+	keyRealeased(); //astro parado
+	
+	if(fase === 1) { //tela de inicio
+		
+		if(astro.x >= 470) { //esbarra com o capitao
+			astro.x = 470;
+			if(i < texto1.length){
+				image(dialogo, 400, 190, 200, 90);
+				image(spacebar, 560, 280, 35, 15);
+				textSize(18);
+				text(texto1[i], 415, 215); //texto do capitao
+			}
 		}
-		if(keyIsDown(LEFT_ARROW)) { //anda para esquerda
-			astro.x = astro.x - 5;
-			flip_img = astro_invertido;
-		}
-		if(astro.x >= 480){ //esbarra com o capitao
-			astro.x = 480;
-			image(dialogo, 400, 190, 200, 90);
-			image(spacebar, 560, 280, 35, 15);
-			textSize(18);
-			text(texto1[i], 415, 215); //texto do capitao
-		}
-		if(astro.x < 0){
+		
+		if(astro.x < 0) { //esbarra na parede
 			astro.x = 0;
 		}
 	
-		if(i === (texto1.length - 1)){
+		if(i === (texto1.length)) { //acaba as falas
 			
-			if(nave.y<100){
-			image(nave_1, nave.x, nave.y, nave.width, nave.height);
-			nave.y++;
+			if(nave.y<100) { //nave descendo
+				image(nave_1, nave.x, nave.y, nave.width, nave.height);
+				nave.y+=5;
 			}
 			
-			if(nave.y === 100){
-				 image(nave_0, nave.x, nave.y, nave.width, nave.height);
-			}
-		
-			if(astro.x <= 250){
-				astro.x = 250;
-				image(spacebar, 253, 280, 35, 15);
-				if(keyCode === 32){
-					fase = 2;
-					keyCode = 0;
+			if(nave.y === 100) { //nave parada
+				image(nave_0, nave.x, nave.y, nave.width, nave.height);
+			
+				if(astro.x <= 250) { //esbarra com a nave
+					astro.x = 250;
+					image(spacebar, 253, 280, 35, 15);
+					
+						if(keyCode === 32) { //entra na nave
+						fase = 2;
+						keyCode = 0;
+					}
 				}
 			}
+			
+			if(astro.x <= 250) { //esbarra com a nave descendo
+				astro.x = 250;
+			}
 		}
 	}
 	
-	if(fase === 2){ //tela dentro da nave
+	if(fase === 2) { //tela dentro da nave
 		
-		image(console1, 400, 200);
-		image(console2, 300, 190);
-		if(keyCode === CONTROL){
+		
+		
+		
+		if(keyCode === CONTROL) {
 			fase = 1;
-			keyCode = 0;
+			
 		}
 	}
 	
-	keyCode=0; //faz parar de andar
+	if(fase === 3) {
+		push();
+		translate(300, 200);
+		rotate(millis() / 10000);
+		imageMode(CENTER);
+		image(terra_0, terra.x, terra.y, terra.width, terra.height);
+		pop();
+	}
+	
+
 		
 }
 
@@ -153,8 +198,6 @@ function sair() {
   window.close();
 }
 
-
-
 function regras() {
    
   background(0);
@@ -170,29 +213,24 @@ function regras() {
 function menu() { //funcao menu
   //codigo de selecao (verde)
   background('#000000');
-	if(opcao == 1){
+	if(opcao == 1) {
 		r_1 = 'green';
 	}else{
 		r_1 = '#14283b';
 	}
 	
-	if(opcao == 2){
+	if(opcao == 2) {
 		r_2 = 'green';
 	}else{
 		r_2 = '#14283b';
 	}
 	
-	if(opcao == 3){
+	if(opcao == 3) {
 		r_3 = 'green';
 	}else{
 		r_3 = '#14283b';
 	}
-	
-	if(opcao == 4){
-		r_4 = 'green';
-	}else{
-		r_4 = '#14283b';
-	}
+
 	image(space_dn,0 ,0); //chamando o space background
 	
 	//retangulos dos textos do menu
@@ -203,17 +241,15 @@ function menu() { //funcao menu
 	fill(r_2);
   rect(235, 125, 130, 55, 10);
 	fill(r_3);
-  rect(235, 185, 160, 55, 10);
-	fill(r_4);
-  rect(235, 245, 100, 55, 10);
+  rect(235, 185, 100, 55, 10);
+
   
 	//textos dos retangulos do menu
   textSize(32);
   fill('yellow');
   text('Jogar', 250, 100);
   text('Regras', 250, 160);
-  text('Recordes', 250, 220);
-  text('Sair', 250, 280);
+  text('Sair', 250, 220);
   stroke('white');
   fill('white');
 	
@@ -235,17 +271,51 @@ function menu() { //funcao menu
 
 }
 
+function walk() { //funcao andar
+	
+	if(keyIsDown(RIGHT_ARROW)) { //anda para direita
+			astro.x = astro.x + 5;
+			for(z=0; z<6; z++){
+				astro[z] = player[z];
+			}
+			//flip_img = astro_0;
+			w++;
+			if(w>=6) {
+				w=0;
+			}
+		}
+	if(keyIsDown(LEFT_ARROW)) { //anda para esquerda
+			
+			for(z=0; z<6; z++){
+				astro[z] = player_flip[z];
+			}
+			astro.x = astro.x - 5;
+			//flip_img = astro_invertido;
+			 w++;
+			if(w>=6) {
+				w=0;
+			}
+		}
+}
+
+function keyRealeased() { //astro parado
+	if(keyIsDown(RIGHT_ARROW)===false && keyIsDown(LEFT_ARROW)===false){
+		w=0;
+	}
+}
+
 function keyPressed() { //selecao pelas teclas
   console.log(keyCode);
   
-  if(keyCode === BACKSPACE) //para voltar a tela inicial
+  if(keyCode === BACKSPACE) { //para voltar a tela inicial
       telaAtiva=1;
+	}
 	
-	if(keyCode === 32 && i<(texto1.length - 1)){ //passa as frases do vetor texto
+	if(keyCode === 32 && i<(texto1.length)) { //passa as frases do vetor texto
 		i++;
 	}
 	
-  if(telaAtiva===1){
+  if(telaAtiva===1) {
   	if (keyCode === ENTER) //seleciona
  	     telaAtiva=opcao+1;
      
@@ -253,22 +323,16 @@ function keyPressed() { //selecao pelas teclas
  	      if(opcao==1){
  	          opcao=2;
 				 }
-  	     else if(opcao==2){
+  	     else if(opcao==2) {
     	         opcao=3; 
-				 }
-				 else if(opcao==3){
-					 		opcao=4;
 				 }
     
   	} else if (keyCode === UP_ARROW) { //para cima
   	     if(opcao==2) {
   	       opcao=1;
   	     } 
-				else if(opcao==3){
+				else if(opcao==3) {
 					opcao=2;
-				}
-				else if(opcao==4){
-					opcao=3;
 				}
    
   	}
