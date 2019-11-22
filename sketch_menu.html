@@ -116,6 +116,10 @@ function jogar() { //codigo do jogo
 	walk(); //funcao andar
 	keyRealeased(); //astro parado
 	
+	if(keyCode === 27){
+		telaAtiva = 1;
+	}
+	
 	if(fase === 1) { //tela de inicio
 		
 		if(astro.x >= 470) { //esbarra com o capitao
@@ -199,6 +203,10 @@ function sair() {
 }
 
 function regras() {
+	
+	if(keyCode === 27){
+		telaAtiva = 1;
+	}
    
   background(0);
   image(space_dn,0 ,0); //chamando o space background
@@ -207,7 +215,7 @@ function regras() {
   textSize(28);
   fill('yellow');
   
-  text('Aqui vao as regras', 40, 55);
+  text('SETAS ANDAM'+'\n'+'\n'+'ESPAÇO INTERAGE'+'\n'+'\n'+'CONTROL SAI DA NAVE'+'\n'+'\n'+'ESC VOLTA AO MENU', 40, 55);
 }
 
 function menu() { //funcao menu
